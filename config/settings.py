@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "embed_video",
-    "apps.calificaciones",
     "apps.tareas",
     "apps.user",
+    "apps.calificaciones",
+    "apps.Yuben",
 ]
 
 AUTH_USER_MODEL = "user.User"
