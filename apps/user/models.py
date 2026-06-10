@@ -6,3 +6,4 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.nombre if self.nombre else self.username
+

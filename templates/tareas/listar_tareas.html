@@ -1,31 +1,39 @@
 {% extends 'base.html' %}
+{% load embed_video_tags %}
 
 {% block title %}Listar Tareas{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
+
     <h1>Listar Tareas</h1>
+
     <ul>
-        <li><a href="{% url 'listar_tareas' %}">tareas</a></li>
+        <li><a href="{% url 'listar_tareas' %}">Tareas</a></li>
         <li><a href="{% url 'crear_tarea' %}">Crear Tarea</a></li>
     </ul>
-    <ul>
-        {% for tarea in tareas %}
-        <li>
-            <h3>titulo: {{ tarea.titulo }}</h3>
-        </li>
-        <li>
-            <p>descripcion: {{ tarea.descripcion }}</p>
-        </li>
-        <li>
-            <p>fecha de entrega: {{ tarea.fecha_entrega }}</p>
-        </li>
 
-        <li><a href="{% url 'editar_tarea' tarea.id %}">Editar</a></li>
-        <li><a href="{% url 'eliminar_tarea' tarea.id %}">Eliminar</a></li>
+    {% for tarea in tareas %}
+    <div class="mb-4 border p-3 rounded">
 
-        {% endfor %}
+        <h3>{{ tarea.titulo }}</h3>
+        <p>{{ tarea.descripcion }}</p>
 
-    </ul>
+        <!-- VIDEO -->
+        {% video tarea.video 'medium' %}
+
+        <div class="mt-2">
+            <a href="{% url 'editar_tarea' tarea.id %}" class="btn btn-warning btn-sm">
+                Editar
+            </a>
+
+            <a href="{% url 'eliminar_tarea' tarea.id %}" class="btn btn-danger btn-sm">
+                Eliminar
+            </a>
+        </div>
+
+    </div>
+    {% endfor %}
+
 </div>
 {% endblock %}

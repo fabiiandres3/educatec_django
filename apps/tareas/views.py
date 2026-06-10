@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .form import TareasForm, RecursoTareasForm, PreguntaForm, RespuestaForm, VideoForm
-from .models import Tareas, RecursoTareas, Pregunta, Respuesta
+from .form import TareasForm, VideoForm, PreguntaForm, RespuestaForm, VideoForm
+from .models import Tareas, Pregunta, Respuesta
 from urllib.parse import urlparse, parse_qs
 
 # Create your views here.
@@ -12,37 +12,27 @@ def listar_tareas(request):
 
 
 def crear_tarea(request):
-    if request.method == 'POST':
+    video_id = None
 
-        formTarea = TareasForm(request.POST)
-        formRecursos = RecursoTareasForm(
-            request.POST,
-            request.FILES
-        )
+    if request.method == "POST":
+        form = TareasForm(request.POST)
 
-        if formTarea.is_valid() and formRecursos.is_valid():
+        if form.is_valid():
+            url = form.cleaned_data.get("url_video")
 
-            tarea = formTarea.save()
+            if url and "watch?v=" in url:
+                video_id = url.split("watch?v=")[1].split("&")[0]
 
-            recurso = formRecursos.save(commit=False)
-            recurso.recurso_tarea = tarea
-            recurso.save()
+            form.save()
 
-            return redirect('listar_tareas')
+            return redirect("listar_tareas")
 
     else:
-        formTarea = TareasForm()
-        formRecursos = RecursoTareasForm()
+        form = TareasForm()
 
     return render(
-        request,
-        'tareas/crear_tarea.html',
-        {
-            'formTarea': formTarea,
-            'formRecursos': formRecursos
-        }
+        request, "tareas/crear_tarea.html", {"formTarea": form, "video_id": video_id}
     )
-    
 
 
 def editar_tarea(request, tarea_id):
@@ -84,10 +74,7 @@ def reproductor(request):
         form = VideoForm()
 
     return render(
-        request,
-        "tareas/reproductor.html",
-        {
-            "form": form,
-            "video_id": video_id
-        }
+        request, "tareas/reproductor.html", {"form": form, "video_id": video_id}
     )
+
+

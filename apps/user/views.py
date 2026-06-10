@@ -43,7 +43,7 @@ def iniciar_sesion(request):
 
 def cerrar_sesion(request):
     logout(request)
-    return render(request, "user/index.html")
+    return render(request, "user/iniciar_sesion.html")
 
 
 def inicio(request):
