@@ -134,6 +134,20 @@ def guardar_nota(request):
         traceback.print_exc()
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
 
+@require_POST
+def eliminar_nota(request):
+    try:
+        estudiante_id = request.POST.get('estudiante_id')
+        materia_id    = request.POST.get('materia_id')
+        Calificacion.objects.filter(
+            estudiante_id=estudiante_id,
+            materia_id=materia_id,
+            docente=get_docente()
+        ).delete()
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
 
 @require_POST
 def guardar_asistencia(request):

@@ -16,7 +16,6 @@
         margin-bottom: 10px;
     }
 
-    /* ── FILTRO ── */
     .filtro-form {
         display: flex;
         gap: 12px;
@@ -74,25 +73,64 @@
         box-shadow: 0 0 0 3px rgba(0,110,255,.1);
     }
 
-    /* ── TABLA ── */
+    .acciones-cell { display: flex; gap: 8px; align-items: center; }
+
+    /* ── Botón Guardar ── */
     .btn-save-row {
-        padding: 6px 14px;
-        border: 1px solid #d1d5db;
+        padding: 7px 16px;
+        border: none;
         border-radius: 8px;
-        background: transparent;
+        background: #006eff;
+        color: #fff;
         cursor: pointer;
         font-size: 13px;
+        font-weight: 600;
         font-family: inherit;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        transition: background .15s, border-color .15s, color .15s;
+        gap: 6px;
+        transition: background .15s, transform .1s, box-shadow .15s;
+        box-shadow: 0 2px 6px rgba(0,110,255,.25);
     }
 
-    .btn-save-row:hover  { background: #f3f4f6; }
-    .btn-save-row.saving { opacity: .6; pointer-events: none; }
-    .btn-save-row.saved  { border-color: #10b981; color: #065f46; background: #d1fae5; }
-    .btn-save-row.error  { border-color: #ef4444; color: #991b1b; background: #fee2e2; }
+    .btn-save-row:hover  { background: #0055cc; box-shadow: 0 4px 10px rgba(0,110,255,.35); transform: translateY(-1px); }
+    .btn-save-row:active { transform: translateY(0); }
+    .btn-save-row.saving { opacity: .7; pointer-events: none; }
+    .btn-save-row.saved  { background: #10b981; box-shadow: 0 2px 6px rgba(16,185,129,.3); }
+    .btn-save-row.error  { background: #ef4444; box-shadow: 0 2px 6px rgba(239,68,68,.3); }
+
+    /* ── Botón Eliminar ── */
+    .btn-delete-row {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 8px;
+        background: #fee2e2;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .15s, transform .1s, box-shadow .15s;
+        box-shadow: 0 1px 3px rgba(239,68,68,.15);
+    }
+
+    .btn-delete-row:hover:not(:disabled) {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(239,68,68,.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-delete-row:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-delete-row:disabled {
+        background: #f3f4f6;
+        color: #d1d5db;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
 </style>
 {% endblock %}
 
@@ -170,13 +208,13 @@
                 <th>Parcial</th>
                 <th>Examen</th>
                 <th>Promedio</th>
-                <th>Acción</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for estudiante in estudiantes %}
             {% with cal=calificaciones_map|get_item:estudiante.id %}
-            <tr data-id="{{ estudiante.id }}">
+            <tr data-id="{{ estudiante.id }}" data-tiene-nota="{% if cal %}1{% else %}0{% endif %}">
                 <td>{{ estudiante.nombre }}</td>
                 <td>
                     <input class="inp-tarea"
@@ -200,12 +238,19 @@
                     {% if cal %}{{ cal.promedio }}{% else %}—{% endif %}
                 </td>
                 <td>
-                    <button class="btn-save-row btn-guardar"
-                            data-estudiante="{{ estudiante.id }}"
-                            data-curso="{{ curso_sel.id }}"
-                            data-materia="{{ materia_sel.id }}">
-                        <i class="fa-solid fa-floppy-disk"></i> Guardar
-                    </button>
+                    <div class="acciones-cell">
+                        <button class="btn-save-row btn-guardar"
+                                data-estudiante="{{ estudiante.id }}"
+                                data-materia="{{ materia_sel.id }}">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar
+                        </button>
+                        <button class="btn-delete-row btn-eliminar"
+                                data-estudiante="{{ estudiante.id }}"
+                                data-materia="{{ materia_sel.id }}"
+                                {% if not cal %}disabled title="Sin nota registrada"{% endif %}>
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
             {% endwith %}
@@ -221,16 +266,19 @@
 </div>
 
 <script>
-const CSRF = '{{ csrf_token }}';
-const URL_GUARDAR = '{% url "guardar_nota" %}';
+const CSRF         = '{{ csrf_token }}';
+const URL_GUARDAR  = '{% url "guardar_nota" %}';
+const URL_ELIMINAR = '{% url "eliminar_nota" %}';
 
 document.querySelectorAll('tr[data-id]').forEach(fila => {
-    const tarea   = fila.querySelector('.inp-tarea');
-    const parcial = fila.querySelector('.inp-parcial');
-    const examen  = fila.querySelector('.inp-examen');
-    const celdaProm = fila.querySelector('.celda-promedio');
+    const tarea      = fila.querySelector('.inp-tarea');
+    const parcial    = fila.querySelector('.inp-parcial');
+    const examen     = fila.querySelector('.inp-examen');
+    const celdaProm  = fila.querySelector('.celda-promedio');
+    const btnGuardar = fila.querySelector('.btn-guardar');
+    const btnElim    = fila.querySelector('.btn-eliminar');
 
-    // Recalcula el promedio en tiempo real
+    // Recalcula promedio en tiempo real
     function actualizarPromedio() {
         const t = parseFloat(tarea.value)   || 0;
         const p = parseFloat(parcial.value) || 0;
@@ -242,17 +290,15 @@ document.querySelectorAll('tr[data-id]').forEach(fila => {
 
     [tarea, parcial, examen].forEach(inp => inp.addEventListener('input', actualizarPromedio));
 
-    // Guarda via fetch (sin recargar)
-    fila.querySelector('.btn-guardar').addEventListener('click', async function () {
-        const btn = this;
-        btn.classList.add('saving');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+    // ── GUARDAR / CREAR / EDITAR ──
+    btnGuardar.addEventListener('click', async function () {
+        btnGuardar.classList.add('saving');
+        btnGuardar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
         const body = new URLSearchParams({
             csrfmiddlewaretoken: CSRF,
-            estudiante_id: btn.dataset.estudiante,
-            curso_id:      btn.dataset.curso,
-            materia_id:    btn.dataset.materia,
+            estudiante_id: btnGuardar.dataset.estudiante,
+            materia_id:    btnGuardar.dataset.materia,
             tarea:         tarea.value,
             parcial:       parcial.value,
             examen:        examen.value,
@@ -266,24 +312,67 @@ document.querySelectorAll('tr[data-id]').forEach(fila => {
             });
 
             if (res.ok) {
-                btn.classList.remove('saving');
-                btn.classList.add('saved');
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardado';
+                btnGuardar.classList.remove('saving');
+                btnGuardar.classList.add('saved');
+                btnGuardar.innerHTML = '<i class="fa-solid fa-check"></i> Guardado';
+                // Habilitar eliminar ahora que existe la nota
+                btnElim.disabled = false;
+                btnElim.removeAttribute('title');
                 setTimeout(() => {
-                    btn.classList.remove('saved');
-                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+                    btnGuardar.classList.remove('saved');
+                    btnGuardar.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
                 }, 2500);
             } else {
                 throw new Error('Error del servidor');
             }
-        } catch (err) {
-            btn.classList.remove('saving');
-            btn.classList.add('error');
-            btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Error';
+        } catch {
+            btnGuardar.classList.remove('saving');
+            btnGuardar.classList.add('error');
+            btnGuardar.innerHTML = '<i class="fa-solid fa-xmark"></i> Error';
             setTimeout(() => {
-                btn.classList.remove('error');
-                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+                btnGuardar.classList.remove('error');
+                btnGuardar.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
             }, 3000);
+        }
+    });
+
+    // ── ELIMINAR ──
+    btnElim.addEventListener('click', async function () {
+        if (!confirm('¿Eliminar la nota de este estudiante?')) return;
+
+        btnElim.disabled = true;
+        btnElim.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+        const body = new URLSearchParams({
+            csrfmiddlewaretoken: CSRF,
+            estudiante_id: btnElim.dataset.estudiante,
+            materia_id:    btnElim.dataset.materia,
+        });
+
+        try {
+            const res = await fetch(URL_ELIMINAR, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF },
+                body: body,
+            });
+
+            if (res.ok) {
+                // Resetear fila visualmente sin recargar
+                tarea.value   = '0';
+                parcial.value = '0';
+                examen.value  = '0';
+                celdaProm.textContent = '—';
+                celdaProm.className   = 'celda-promedio';
+                btnElim.disabled = true;
+                btnElim.title    = 'Sin nota registrada';
+                btnElim.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            } else {
+                throw new Error();
+            }
+        } catch {
+            btnElim.disabled = false;
+            btnElim.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            alert('Error al eliminar la nota. Intenta de nuevo.');
         }
     });
 });
