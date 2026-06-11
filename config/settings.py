@@ -123,7 +123,10 @@ USE_TZ = True
 
 LOGIN_URL = 'iniciar_sesion'
 LOGIN_REDIRECT_URL = 'iniciar_seseion'
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
