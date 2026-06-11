@@ -1,0 +1,68 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Mis Materias{% endblock %}
+{% block active_materias %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="welcome">
+        <h2>Mis Materias</h2>
+        <p>{{ estudiante.curso }} — Año 2026</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">0</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-book-open"></i></div>
+        <div><h3>{{ calificaciones|length }}</h3><p>Materias</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-star"></i></div>
+        <div><h3>{{ promedio_general }}</h3><p>Promedio General</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-trophy"></i></div>
+        <div><h3>{{ aprobadas }}</h3><p>Aprobadas</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><h3>{{ en_riesgo }}</h3><p>En Riesgo</p></div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h4>Todas mis Materias</h4>
+    </div>
+    <div class="subjects-grid" style="margin-top:20px;">
+        {% for cal in calificaciones %}
+        <div class="subject-card">
+            <i class="fa-solid fa-book-open" style="font-size:2rem; color:var(--primary); margin-bottom:10px;"></i>
+            <h6>{{ cal.materia }}</h6>
+            <span>Docente: {{ cal.docente.nombre }}</span><br>
+            <span style="font-size:1.2rem; font-weight:bold; color:{% if cal.promedio >= 3.0 %}#10b981{% else %}#ef4444{% endif %};">
+                {{ cal.promedio }} / 5.0
+            </span>
+            <br>
+            <small style="color:#64748b;">
+                Tarea: {{ cal.tarea }} | Parcial: {{ cal.parcial }} | Examen: {{ cal.examen }}
+            </small>
+        </div>
+        {% empty %}
+        <p style="color:#64748b;">No hay materias registradas aún.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

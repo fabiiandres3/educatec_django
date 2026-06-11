@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "apps.tareas",
     "apps.user",
     "apps.calificaciones",
-    "apps.Yuben",
+    "apps.alumno",
 ]
 
 AUTH_USER_MODEL = "user.User"
@@ -61,9 +61,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-    BASE_DIR / 'config' / 'apps' / 'calificaciones' / 'templates' / 'calificaciones',
-],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

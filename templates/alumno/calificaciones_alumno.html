@@ -1,0 +1,84 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Mis Calificaciones{% endblock %}
+{% block active_calificaciones %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="welcome">
+        <h2>Mis Calificaciones</h2>
+        <p>{{ estudiante.curso }} — Año 2026</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">0</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-star"></i></div>
+        <div><h3>{{ promedio_general }}</h3><p>Promedio General</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div>
+        <div><h3>{{ aprobadas }}</h3><p>Materias Aprobadas</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><h3>{{ en_riesgo }}</h3><p>En Riesgo</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-book"></i></div>
+        <div><h3>{{ calificaciones|length }}</h3><p>Materias</p></div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h4 style="margin-bottom:15px;">Boletín de Notas</h4>
+    <table style="width:100%; border-collapse:collapse;">
+        <thead style="background:#f4f7fc;">
+            <tr>
+                <th style="padding:15px; text-align:left; color:#081b3a;">Materia</th>
+                <th style="padding:15px; text-align:left; color:#081b3a;">Docente</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Tarea</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Parcial</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Examen</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Promedio</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cal in calificaciones %}
+            <tr style="border-bottom:1px solid #e5e7eb;">
+                <td style="padding:15px; font-weight:600;">{{ cal.materia }}</td>
+                <td style="padding:15px; color:#64748b;">{{ cal.docente.nombre }}</td>
+                <td style="padding:15px; text-align:center;">{{ cal.tarea }}</td>
+                <td style="padding:15px; text-align:center;">{{ cal.parcial }}</td>
+                <td style="padding:15px; text-align:center;">{{ cal.examen }}</td>
+                <td style="padding:15px; text-align:center; font-weight:bold; font-size:1.1rem; color:{% if cal.promedio >= 3.0 %}#10b981{% else %}#ef4444{% endif %};">
+                    {{ cal.promedio }}
+                </td>
+                <td style="padding:15px; text-align:center;">
+                    <span style="padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600;
+                        background:{% if cal.promedio >= 3.0 %}#d1fae5{% else %}#fee2e2{% endif %};
+                        color:{% if cal.promedio >= 3.0 %}#065f46{% else %}#991b1b{% endif %};">
+                        {% if cal.promedio >= 3.0 %}Aprobado{% else %}Reprobado{% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">No hay calificaciones registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

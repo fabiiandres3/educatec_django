@@ -1,0 +1,142 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Portal Estudiantil{% endblock %}
+{% block active_inicio %}active{% endblock %}
+
+{% block content %}
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="welcome">
+        <h2>Hola, {{ estudiante.nombre }} 👋</h2>
+        <p>Bienvenido nuevamente a Educatec</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">{{ mensajes_sin_leer }}</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-star"></i></div>
+        <div><h3>{{ promedio_general }}</h3><p>Promedio General</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-user-check"></i></div>
+        <div><h3>{{ porcentaje_asistencia }}%</h3><p>Asistencia</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-book"></i></div>
+        <div><h3>{{ tareas_pendientes }}</h3><p>Tareas Pendientes</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-medal"></i></div>
+        <div><h3>{{ total_logros }}</h3><p>Logros</p></div>
+    </div>
+</div>
+
+<!-- GRID PRINCIPAL -->
+<div class="dashboard-grid">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="main-column">
+
+        <!-- TAREAS -->
+        <div class="section-card">
+            <div class="section-header">
+                <h4>Tareas Pendientes</h4>
+                <a href="{% url 'tareas_alumno' %}">Ver todas</a>
+            </div>
+            {% for cal in calificaciones %}
+            <div class="task-card">
+                <div>
+                    <h6>{{ cal.materia }}</h6>
+                    <p>Promedio: {{ cal.promedio }}</p>
+                </div>
+                <span class="badge {% if cal.promedio >= 4.0 %}success{% elif cal.promedio >= 3.0 %}warning{% else %}danger{% endif %}">
+                    {{ cal.promedio }}
+                </span>
+            </div>
+            {% empty %}
+            <div class="task-card">
+                <div><p>No hay calificaciones registradas.</p></div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- MATERIAS -->
+        <div class="section-card">
+            <div class="section-header"><h4>Mis Materias</h4></div>
+            <div class="subjects-grid">
+                {% for cal in calificaciones %}
+                <div class="subject-card">
+                    <i class="fa-solid fa-book-open"></i>
+                    <h6>{{ cal.materia }}</h6>
+                    <span>Promedio: {{ cal.promedio }}</span>
+                </div>
+                {% empty %}
+                <p style="color:#64748b;">No hay materias registradas.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="side-column">
+
+        <!-- ASISTENCIA -->
+        <div class="section-card">
+            <h4>Mi Asistencia</h4>
+            <ul class="event-list">
+                <li>✅ Presentes <span>{{ presentes }}</span></li>
+                <li>⏰ Tardanzas <span>{{ tardanzas }}</span></li>
+                <li>❌ Ausentes <span>{{ ausentes }}</span></li>
+            </ul>
+        </div>
+
+        <!-- MENSAJES RECIENTES -->
+        <div class="section-card">
+            <h4>Mensajes Recientes</h4>
+            <ul class="event-list">
+                {% for msg in mensajes_recientes %}
+                <li>💬 {{ msg.contenido|truncatechars:30 }} <span>{{ msg.fecha|date:"d/m" }}</span></li>
+                {% empty %}
+                <li>No hay mensajes.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- LOGROS -->
+        <div class="section-card">
+            <h4>Mis Logros</h4>
+            {% if porcentaje_asistencia >= 90 %}
+            <div class="achievement">
+                <i class="fa-solid fa-trophy"></i>
+                <div><strong>Excelente Asistencia</strong><p>{{ porcentaje_asistencia }}% de asistencia</p></div>
+            </div>
+            {% endif %}
+            {% if promedio_general >= 4.5 %}
+            <div class="achievement">
+                <i class="fa-solid fa-star"></i>
+                <div><strong>Alto Rendimiento</strong><p>Promedio {{ promedio_general }}</p></div>
+            </div>
+            {% endif %}
+            {% if not porcentaje_asistencia >= 90 and not promedio_general >= 4.5 %}
+            <p style="color:#64748b; margin-top:10px;">¡Sigue esforzándote para ganar logros!</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

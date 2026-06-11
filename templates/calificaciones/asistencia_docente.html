@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'calificaciones/base.html' %}
 {% load dict_extras %}
 {% block title %}Asistencia{% endblock %}
 {% block active_asistencia %}active{% endblock %}
@@ -46,9 +46,11 @@
     <h4>Seleccionar Grado</h4>
     <form method="GET" style="display:flex;gap:15px;">
         <select name="curso" class="filtro-form" onchange="this.form.submit()">
-            <option value="">-- Seleccionar Grado --</option>
+            <option value=""> Seleccionar Grado </option>
             {% for curso in cursos %}
-                <option value="{{ curso.id }}" {% if curso_sel and curso.id == curso_sel.id %}selected{% endif %}>{{ curso.nombre }}</option>
+                <option value="{{ curso.id }}"
+                {% if curso_sel and curso.id == curso_sel.id %}selected{% endif %}>
+                {{ curso.nombre }}</option>
             {% endfor %}
         </select>
     </form>

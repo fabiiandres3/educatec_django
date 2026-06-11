@@ -1,0 +1,92 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block active_configuracion %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="welcome">
+        <h2>Configuración</h2>
+        <p>Gestiona tu perfil estudiantil</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">0</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+    <div class="section-card">
+        <h3 style="margin-bottom:20px;">Mi Perfil</h3>
+        <div style="text-align:center; margin-bottom:25px;">
+            <img src="https://i.pravatar.cc/120?img=12" style="width:90px;height:90px;border-radius:50%;border:4px solid #006eff;">
+            <h4 style="margin-top:10px;">{{ estudiante.nombre }}</h4>
+            <small style="color:#64748b;">{{ estudiante.curso }}</small>
+        </div>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Nombre Completo</label>
+            <input type="text" value="{{ estudiante.nombre }}" readonly
+                style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;outline:none;">
+        </div>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Correo Institucional</label>
+            <input type="email" value="{{ estudiante.correo }}" readonly
+                style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;outline:none;">
+        </div>
+        <div style="margin-bottom:20px;">
+            <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Curso</label>
+            <input type="text" value="{{ estudiante.curso }}" readonly
+                style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;outline:none;">
+        </div>
+    </div>
+
+    <div>
+        <div class="section-card" style="margin-bottom:20px;">
+            <h3 style="margin-bottom:20px;">Información Académica</h3>
+            <div style="display:flex;flex-direction:column;gap:15px;">
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:12px;">
+                    <span style="color:#64748b;">Institución</span>
+                    <strong>Educatec</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:12px;">
+                    <span style="color:#64748b;">Grado</span>
+                    <strong>{{ estudiante.curso }}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:12px;">
+                    <span style="color:#64748b;">Año Escolar</span>
+                    <strong>2026</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:12px;">
+                    <span style="color:#64748b;">Jornada</span>
+                    <strong>Mañana</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3 style="margin-bottom:20px;">Preferencias</h3>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                    <input type="checkbox" checked> Recibir notificaciones de tareas
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                    <input type="checkbox" checked> Recibir mensajes del docente
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                    <input type="checkbox"> Recordatorios de exámenes
+                </label>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

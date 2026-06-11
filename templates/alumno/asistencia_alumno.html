@@ -1,0 +1,74 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Mi Asistencia{% endblock %}
+{% block active_asistencia %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="welcome">
+        <h2>Mi Asistencia</h2>
+        <p>{{ estudiante.curso }} — Año 2026</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">0</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-user-check"></i></div>
+        <div><h3>{{ porcentaje_asistencia }}%</h3><p>Asistencia</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-check"></i></div>
+        <div><h3>{{ presentes }}</h3><p>Presentes</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-clock"></i></div>
+        <div><h3>{{ tardanzas }}</h3><p>Tardanzas</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-user-xmark"></i></div>
+        <div><h3>{{ ausentes }}</h3><p>Ausentes</p></div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h4 style="margin-bottom:15px;">Registro de Asistencia</h4>
+    <table style="width:100%; border-collapse:collapse;">
+        <thead style="background:#f4f7fc;">
+            <tr>
+                <th style="padding:15px; text-align:left; color:#081b3a;">Fecha</th>
+                <th style="padding:15px; text-align:center; color:#081b3a;">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asis in asistencias %}
+            <tr style="border-bottom:1px solid #e5e7eb;">
+                <td style="padding:15px;">{{ asis.fecha|date:"d \d\e F \d\e Y" }}</td>
+                <td style="padding:15px; text-align:center;">
+                    <span style="padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600;
+                        background:{% if asis.estado == 'presente' %}#d1fae5{% elif asis.estado == 'tardanza' %}#fef3c7{% else %}#fee2e2{% endif %};
+                        color:{% if asis.estado == 'presente' %}#065f46{% elif asis.estado == 'tardanza' %}#92400e{% else %}#991b1b{% endif %};">
+                        {% if asis.estado == 'presente' %}✅ Presente
+                        {% elif asis.estado == 'tardanza' %}⏰ Tardanza
+                        {% else %}❌ Ausente{% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" style="text-align:center; padding:30px; color:#64748b;">No hay registros de asistencia.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

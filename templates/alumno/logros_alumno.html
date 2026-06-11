@@ -1,0 +1,135 @@
+{% extends 'alumno/base.html' %}
+{% block title %}Mis Logros{% endblock %}
+{% block active_logros %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logro-card{background:white;border-radius:20px;padding:25px;margin-bottom:15px;display:flex;align-items:center;gap:20px;box-shadow:0 5px 15px rgba(0,0,0,.05);transition:.3s;}
+    .logro-card:hover{transform:translateY(-3px);}
+    .logro-icon{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+    .logro-card.bloqueado{opacity:0.5;filter:grayscale(1);}
+    .logro-card.bloqueado .logro-icon{background:#e5e7eb;}
+    .progreso-bar{height:8px;background:#e5e7eb;border-radius:10px;margin-top:8px;}
+    .progreso-fill{height:100%;border-radius:10px;background:var(--primary);transition:.3s;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="welcome">
+        <h2>Mis Logros 🏆</h2>
+        <p>{{ estudiante.curso }} — Tu progreso académico</p>
+    </div>
+    <div class="user-area">
+        <div class="notification">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count">0</span>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/120?img=12" alt="Alumno">
+            <div>
+                <strong>{{ estudiante.nombre }}</strong>
+                <small>{{ estudiante.curso }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-trophy"></i></div>
+        <div><h3>{{ total_logros }}</h3><p>Logros Obtenidos</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-star"></i></div>
+        <div><h3>{{ promedio }}</h3><p>Promedio</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-user-check"></i></div>
+        <div><h3>{{ porcentaje_asistencia }}%</h3><p>Asistencia</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-medal"></i></div>
+        <div><h3>{{ logros_por_desbloquear }}</h3><p>Por Desbloquear</p></div>
+    </div>
+</div>
+
+<!-- LOGROS OBTENIDOS -->
+<h4 style="margin-bottom:15px;">🏅 Logros Obtenidos</h4>
+
+{% if porcentaje_asistencia >= 90 %}
+<div class="logro-card">
+    <div class="logro-icon" style="background:#d1fae5; color:#065f46;">🎯</div>
+    <div style="flex:1;">
+        <strong>Asistencia Perfecta</strong>
+        <p style="color:#64748b; margin:0; font-size:.9rem;">Mantuviste más del 90% de asistencia</p>
+        <div class="progreso-bar"><div class="progreso-fill" style="width:{{ porcentaje_asistencia }}%;"></div></div>
+        <small style="color:#10b981;">{{ porcentaje_asistencia }}% de asistencia</small>
+    </div>
+    <i class="fa-solid fa-check-circle" style="color:#10b981; font-size:1.5rem;"></i>
+</div>
+{% endif %}
+
+{% if promedio >= 4.5 %}
+<div class="logro-card">
+    <div class="logro-icon" style="background:#fef3c7; color:#92400e;">⭐</div>
+    <div style="flex:1;">
+        <strong>Estudiante Destacado</strong>
+        <p style="color:#64748b; margin:0; font-size:.9rem;">Promedio superior a 4.5</p>
+        <div class="progreso-bar"><div class="progreso-fill" style="width:{{ promedio|floatformat:0 }}0%;background:#f59e0b;"></div></div>
+        <small style="color:#f59e0b;">Promedio: {{ promedio }} / 5.0</small>
+    </div>
+    <i class="fa-solid fa-check-circle" style="color:#f59e0b; font-size:1.5rem;"></i>
+</div>
+{% endif %}
+
+{% if promedio >= 3.0 %}
+<div class="logro-card">
+    <div class="logro-icon" style="background:#eef4ff; color:#006eff;">📚</div>
+    <div style="flex:1;">
+        <strong>Sin Materias Reprobadas</strong>
+        <p style="color:#64748b; margin:0; font-size:.9rem;">Todas las materias aprobadas con 3.0 o más</p>
+        <div class="progreso-bar"><div class="progreso-fill" style="width:100%;"></div></div>
+        <small style="color:#006eff;">¡Todas aprobadas!</small>
+    </div>
+    <i class="fa-solid fa-check-circle" style="color:#006eff; font-size:1.5rem;"></i>
+</div>
+{% endif %}
+
+{% if total_logros == 0 %}
+<div class="section-card" style="text-align:center; padding:40px;">
+    <i class="fa-solid fa-trophy" style="font-size:3rem; color:#e5e7eb; margin-bottom:15px; display:block;"></i>
+    <p style="color:#64748b;">Aún no tienes logros. ¡Sigue esforzándote!</p>
+</div>
+{% endif %}
+
+<!-- LOGROS POR DESBLOQUEAR -->
+<h4 style="margin:20px 0 15px;">🔒 Por Desbloquear</h4>
+
+{% if porcentaje_asistencia < 90 %}
+<div class="logro-card bloqueado">
+    <div class="logro-icon">🎯</div>
+    <div style="flex:1;">
+        <strong>Asistencia Perfecta</strong>
+        <p style="color:#64748b; margin:0; font-size:.9rem;">Mantén más del 90% de asistencia</p>
+        <div class="progreso-bar"><div class="progreso-fill" style="width:{{ porcentaje_asistencia }}%;"></div></div>
+        <small>{{ porcentaje_asistencia }}% / 90% requerido</small>
+    </div>
+    <i class="fa-solid fa-lock" style="font-size:1.5rem;"></i>
+</div>
+{% endif %}
+
+{% if promedio < 4.5 %}
+<div class="logro-card bloqueado">
+    <div class="logro-icon">⭐</div>
+    <div style="flex:1;">
+        <strong>Estudiante Destacado</strong>
+        <p style="color:#64748b; margin:0; font-size:.9rem;">Alcanza un promedio de 4.5 o más</p>
+        <div class="progreso-bar"><div class="progreso-fill" style="width:{% if promedio %}{{ promedio|floatformat:0 }}0{% else %}0{% endif %}%;"></div></div>
+        <small>{{ promedio }} / 4.5 requerido</small>
+    </div>
+    <i class="fa-solid fa-lock" style="font-size:1.5rem;"></i>
+</div>
+{% endif %}
+
+{% endblock %}
