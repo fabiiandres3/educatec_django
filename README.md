@@ -26,4 +26,5 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 ## funcione el reporte de notas
+
 pip install reportlab openpyxl
