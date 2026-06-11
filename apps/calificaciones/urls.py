@@ -12,6 +12,7 @@ urlpatterns = [
     path('calificaciones/reporte/pdf/', views.exportar_reporte_pdf, name='exportar_reporte_pdf'),
     path('calificaciones/reporte/excel/', views.exportar_reporte_excel, name='exportar_reporte_excel'),
     path('asistencia/', views.asistencia_docente, name='asistencia_docente'),
+    path('asistencia/guardar/', views.guardar_asistencia, name='guardar_asistencia'),  # ← nueva
     path('mensajes/', views.mensajes_docente, name='mensajes_docente'),
     path('configuracion/', views.configuracion_docente, name='configuracion_docente'),
 ]

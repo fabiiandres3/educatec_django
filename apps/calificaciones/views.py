@@ -117,8 +117,6 @@ def guardar_nota(request):
 
         estudiante = get_object_or_404(Estudiante, id=estudiante_id)
 
-        # lookup SOLO por unique_together ('estudiante', 'materia')
-        # docente va en defaults, promedio es @property — no se guarda en BD
         Calificacion.objects.update_or_create(
             estudiante=estudiante,
             materia_id=materia_id,
@@ -130,6 +128,29 @@ def guardar_nota(request):
             }
         )
         return JsonResponse({'ok': True, 'promedio': str(promedio)})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@require_POST
+def guardar_asistencia(request):
+    try:
+        estudiante_id = request.POST.get('estudiante_id')
+        fecha_str     = request.POST.get('fecha')
+        estado        = request.POST.get('estado', 'presente')
+
+        estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+        fecha      = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+
+        Asistencia.objects.update_or_create(
+            estudiante=estudiante,
+            fecha=fecha,
+            defaults={'estado': estado}
+        )
+        return JsonResponse({'ok': True})
 
     except Exception as e:
         import traceback
@@ -158,9 +179,6 @@ def reporte_notas(request):
     if materia_id:
         materia_sel    = get_object_or_404(Materia, id=materia_id)
         calificaciones = calificaciones.filter(materia=materia_sel)
-
-    # periodo no existe en el modelo — se ignora sin error
-    # if periodo: calificaciones = calificaciones.filter(periodo=periodo)
 
     calificaciones = calificaciones.select_related('estudiante', 'estudiante__curso', 'materia')
 
@@ -223,15 +241,9 @@ def exportar_reporte_pdf(request):
     data = [headers]
     for i, cal in enumerate(calificaciones, 1):
         data.append([
-            str(i),
-            cal.estudiante.nombre,
-            cal.estudiante.curso.nombre,
-            cal.materia.nombre,
-            str(cal.tarea),
-            str(cal.parcial),
-            str(cal.examen),
-            str(cal.promedio),
-            desempeno(cal.promedio),
+            str(i), cal.estudiante.nombre, cal.estudiante.curso.nombre,
+            cal.materia.nombre, str(cal.tarea), str(cal.parcial),
+            str(cal.examen), str(cal.promedio), desempeno(cal.promedio),
         ])
 
     tabla = Table(data, repeatRows=1)
@@ -303,21 +315,15 @@ def exportar_reporte_excel(request):
         if p >= 3.0: return 'Básico'
         return 'Bajo'
 
-    color_desempeno = {
-        'Superior': 'DBEAFE',
-        'Alto':     'D1FAE5',
-        'Básico':   'FEF9C3',
-        'Bajo':     'FEE2E2',
-    }
+    color_desempeno = {'Superior': 'DBEAFE', 'Alto': 'D1FAE5', 'Básico': 'FEF9C3', 'Bajo': 'FEE2E2'}
 
     for i, cal in enumerate(calificaciones, 1):
         row = i + 4
         d   = desempeno(cal.promedio)
         bg  = 'FFFFFF' if i % 2 == 0 else 'F8FAFC'
         fila = [i, cal.estudiante.nombre, cal.estudiante.curso.nombre,
-                cal.materia.nombre,
-                float(cal.tarea), float(cal.parcial), float(cal.examen),
-                float(cal.promedio), d]
+                cal.materia.nombre, float(cal.tarea), float(cal.parcial),
+                float(cal.examen), float(cal.promedio), d]
         for col, val in enumerate(fila, 1):
             cell = ws.cell(row=row, column=col, value=val)
             cell.border = thin
@@ -326,8 +332,7 @@ def exportar_reporte_excel(request):
             if col == 9:
                 cell.fill = PatternFill('solid', fgColor=color_desempeno.get(d, 'FFFFFF'))
             if col == 8:
-                cell.font = Font(bold=True,
-                    color='10B981' if cal.promedio >= 3.0 else 'EF4444')
+                cell.font = Font(bold=True, color='10B981' if cal.promedio >= 3.0 else 'EF4444')
 
     anchos = [5, 30, 15, 20, 10, 10, 10, 12, 14]
     for col, ancho in enumerate(anchos, 1):
@@ -350,19 +355,6 @@ def asistencia_docente(request):
     if curso_id:
         curso_sel = get_object_or_404(Curso, id=curso_id)
         estudiantes = Estudiante.objects.filter(curso=curso_sel)
-    if request.method == 'POST':
-        curso_id_post = request.POST.get('curso_id')
-        fecha_str = request.POST.get('fecha')
-        try:
-            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-        except Exception:
-            fecha = timezone.now().date()
-        for est in Estudiante.objects.filter(curso_id=curso_id_post):
-            estado = request.POST.get(f'estado_{est.id}', 'presente')
-            Asistencia.objects.update_or_create(
-                estudiante=est, fecha=fecha, defaults={'estado': estado}
-            )
-        return redirect(f'/docente/asistencia/?curso={curso_id_post}')
     asistencias_map = {}
     for est in estudiantes:
         asis = Asistencia.objects.filter(
