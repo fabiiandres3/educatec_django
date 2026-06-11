@@ -39,10 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "embed_video",
     "apps.tareas",
-    "apps.user",
 ]
-
-AUTH_USER_MODEL = "user.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -121,8 +118,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-LOGIN_URL = 'iniciar_sesion'
-LOGIN_REDIRECT_URL = 'iniciar_seseion'
+
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
