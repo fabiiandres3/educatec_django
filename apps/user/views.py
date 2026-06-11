@@ -1,10 +1,14 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from .forms import UserForm
 from django.contrib.auth.forms import AuthenticationForm
 
 
 # Create your views here.
+
+def index(request):
+    return render(request, 'user/index.html')
 
 
 def registrar_usuario(request):
@@ -20,7 +24,7 @@ def registrar_usuario(request):
 
             login(request, user)
 
-            return redirect("index")
+            return redirect("inicio")
 
     else:
         form = UserForm()
@@ -34,17 +38,17 @@ def iniciar_sesion(request):
 
         if form.is_valid():
             login(request, form.get_user())
-            return redirect("index")
+            return redirect('inicio')
     else:
         form = AuthenticationForm()
 
     return render(request, "user/iniciar_sesion.html", {"form": form})
 
-
+@login_required
 def cerrar_sesion(request):
     logout(request)
-    return render(request, "user/iniciar_sesion.html")
+    return redirect('iniciar_sesion')
 
-
+@login_required
 def inicio(request):
     return render(request, "user/inicio.html")

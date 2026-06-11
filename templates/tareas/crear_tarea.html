@@ -1,34 +1,292 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Crear Tarea{% endblock %}
+{% block title %}
+Crear Tarea
+{% endblock %}
 
 {% block content %}
-<<h1>Crear Tarea</h1>
 
-    <div class="container mt-5">
-        <form class="form-control" action="{% url 'crear_tarea' %}" method="post">
-            {% csrf_token %}
-            {{ formTarea.as_p }}
-            {{ UrlForm.as_p }}
+<div class="container mt-5">
 
-            {% if video_id %}
-            <iframe width="100%" height="400" src="https://www.youtube.com/embed/{{ video_id }}" allowfullscreen>
-            </iframe>
-            {% endif %}
+    <h1>Crear Tarea</h1>
+
+    <form class="form-control p-4" action="{% url 'crear_tarea' %}" method="post" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ formTarea.as_p }}
+        {{ formImagen.as_p }}
+
+        <hr>
+
+        <h3>Preguntas</h3>
+
+        <div id="contenedor-preguntas">
+
+            <div class="pregunta-item border p-3 mb-3 rounded">
+
+                <label class="form-label">
+                    Pregunta
+                </label>
+
+                <input type="text" name="preguntas[]" class="form-control mb-3">
+
+                <label class="form-label">
+                    Tipo de pregunta
+                </label>
+
+                <select name="tipos[]" class="form-select tipo-pregunta">
+
+                    <option value="texto">
+                        Respuesta abierta
+                    </option>
+
+                    <option value="opcion">
+                        Opción múltiple
+                    </option>
+
+                </select>
 
 
-            <div id="contenido">{% include 'tareas/reproductor.html' %}
+                <!-- RESPUESTA ABIERTA -->
+
+                <div class="respuesta-abierta mt-3">
+
+                    <label class="form-label">
+                        Respuesta correcta
+                    </label>
+
+                    <input type="text" name="respuestas[]" class="form-control">
+
+                </div>
+
+                <!-- OPCIÓN MÚLTIPLE -->
+
+                <div class="opciones-multiples mt-3 d-none">
+
+                    <input type="text" name="opcion_a[]" placeholder="Opción A" class="form-control mb-2">
+
+                    <input type="text" name="opcion_b[]" placeholder="Opción B" class="form-control mb-2">
+
+                    <input type="text" name="opcion_c[]" placeholder="Opción C" class="form-control mb-2">
+
+                    <input type="text" name="opcion_d[]" placeholder="Opción D" class="form-control mb-2">
+
+                    <label class="form-label">
+                        Opción correcta
+                    </label>
+
+                    <select name="correcta[]" class="form-select">
+
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+
+                    </select>
+
+                </div>
+
             </div>
 
-            <button id="btnCrear" class="btn btn-primary" data-url="{% url 'crear_tarea' %}">
-                Crear
+        </div>
+
+        <button type="button" id="agregarPregunta" class="btn btn-secondary mb-3">
+
+            Agregar otra pregunta
+
+        </button>
+
+        <br>
+
+        <button type="submit" class="btn btn-primary">
+
+            Guardar Tarea
+
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+
+    function activarSelects() {
+
+        document.querySelectorAll('.tipo-pregunta').forEach(select => {
+
+            select.onchange = function () {
+
+                const bloque =
+                    this.closest('.pregunta-item');
+
+                const abierta =
+                    bloque.querySelector('.respuesta-abierta');
+
+                const multiple =
+                    bloque.querySelector('.opciones-multiples');
+
+                if (this.value === 'opcion') {
+
+                    abierta.classList.add('d-none');
+                    multiple.classList.remove('d-none');
+
+                } else {
+
+                    abierta.classList.remove('d-none');
+                    multiple.classList.add('d-none');
+
+                }
+
+            };
+
+        });
+
+    }
+
+    function activarEliminar() {
+
+        document.querySelectorAll('.eliminar-pregunta').forEach(btn => {
+
+            btn.onclick = function () {
+
+                const preguntas =
+                    document.querySelectorAll('.pregunta-item');
+
+                if (preguntas.length > 1) {
+
+                    this.closest('.pregunta-item').remove();
+
+                } else {
+
+                    alert('Debe existir al menos una pregunta.');
+
+                }
+
+            };
+
+        });
+
+    }
+
+    activarSelects();
+    activarEliminar();
+
+    document
+        .getElementById('agregarPregunta')
+        .addEventListener('click', function () {
+
+            const contenedor =
+                document.getElementById('contenedor-preguntas');
+
+            const bloque =
+                document.createElement('div');
+
+            bloque.className =
+                'pregunta-item border p-3 mb-3 rounded';
+
+            bloque.innerHTML = `
+
+            <label class="form-label">
+                Pregunta
+            </label>
+
+            <input
+                type="text"
+                name="preguntas[]"
+                class="form-control mb-3">
+
+            <label class="form-label">
+                Tipo de pregunta
+            </label>
+
+            <select
+                name="tipos[]"
+                class="form-select tipo-pregunta">
+
+                <option value="texto">
+                    Respuesta abierta
+                </option>
+
+                <option value="opcion">
+                    Opción múltiple
+                </option>
+
+            </select>
+
+            <div class="respuesta-abierta mt-3">
+
+                <label class="form-label">
+                    Respuesta correcta
+                </label>
+
+                <input
+                    type="text"
+                    name="respuestas[]"
+                    class="form-control">
+
+            </div>
+
+            <div class="opciones-multiples mt-3 d-none">
+
+                <input
+                    type="text"
+                    name="opcion_a[]"
+                    placeholder="Opción A"
+                    class="form-control mb-2">
+
+                <input
+                    type="text"
+                    name="opcion_b[]"
+                    placeholder="Opción B"
+                    class="form-control mb-2">
+
+                <input
+                    type="text"
+                    name="opcion_c[]"
+                    placeholder="Opción C"
+                    class="form-control mb-2">
+
+                <input
+                    type="text"
+                    name="opcion_d[]"
+                    placeholder="Opción D"
+                    class="form-control mb-2">
+
+                <label class="form-label">
+                    Opción correcta
+                </label>
+
+                <select
+                    name="correcta[]"
+                    class="form-select">
+
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+
+                </select>
+
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-danger btn-sm mt-3 eliminar-pregunta">
+
+                Eliminar pregunta
+
             </button>
-        </form>
-    </div>
+        `;
 
-    {% endblock %}
+            contenedor.appendChild(bloque);
 
-    """{% block js %}
-    <!--<script src="{% static 'js/crear_tarea.js' %}"></script>-->
-    {% endblock %}"""
+            activarSelects();
+            activarEliminar();
+
+        });
+
+</script>
+
+{% endblock %}

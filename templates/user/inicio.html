@@ -1,10 +1,8 @@
-<h1>iniciaste sesion</h1>
-
-
 {% extends 'base.html' %}
 {% block content %}
 
 <form method="POST" action="{% url 'cerrar_sesion' %}">
+    <h1>iniciaste sesion</h1>
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">
         Cerrar sesión

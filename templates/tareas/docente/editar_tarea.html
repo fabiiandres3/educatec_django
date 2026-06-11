@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Tarea{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:860px;">
+
+    <!-- Header -->
+    <div class="mb-5">
+        <a href="{% url 'listar_tareas' %}" class="btn px-4 py-2 mb-4 d-inline-flex align-items-center gap-2"
+            style="background:#006eff;color:#050A30;border-radius:10px;font-size:16px;font-weight:600;border:1px solid #dde0e8;">
+            &#8592; Volver a tareas
+        </a>
+        <h1 class="fw-bold mb-1" style="color:#050A30;font-size:38px;">Editar Tarea</h1>
+        <p class="text-muted mb-0" style="font-size:17px;">Modificá los datos de la tarea y guardá los cambios</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- DATOS DE LA TAREA -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;background:#f3f4f6;">
+            <div class="px-5 py-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="rounded-circle"
+                        style="width:13px;height:13px;background:#006EFF;display:inline-block;flex-shrink:0;"></span>
+                    <h5 class="fw-bold mb-0" style="color:#050A30;font-size:20px;">Datos de la tarea</h5>
+                </div>
+
+                <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Título</label>
+                <input type="text" name="titulo" value="{{ tarea.titulo }}" class="form-control mb-4"
+                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;background:#fff;">
+
+                <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Descripción</label>
+                <textarea name="descripcion" class="form-control mb-4" rows="3"
+                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;background:#fff;">{{ tarea.descripcion }}</textarea>
+
+                <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Video (URL YouTube)</label>
+                <input type="text" name="video" value="{{ tarea.video }}" class="form-control mb-4"
+                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;background:#fff;">
+
+                <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Fecha de entrega</label>
+                <input type="date" name="fecha_entrega" value="{{ tarea.fecha_entrega|date:'Y-m-d' }}"
+                    class="form-control"
+                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;background:#fff;">
+            </div>
+        </div>
+
+        <!-- IMAGEN -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;background:#f3f4f6;">
+            <div class="px-5 py-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="rounded-circle"
+                        style="width:13px;height:13px;background:#006EFF;display:inline-block;flex-shrink:0;"></span>
+                    <h5 class="fw-bold mb-0" style="color:#050A30;font-size:20px;">Imagen</h5>
+                </div>
+
+                {% if tarea.imagenes.all %}
+                <label class="fw-bold mb-2" style="font-size:15px;color:#050A30;">Imagen actual</label>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    {% for img in tarea.imagenes.all %}
+                    <img src="{{ img.imagen.url }}" class="rounded"
+                        style="width:150px;height:105px;object-fit:cover;border:1px solid #dde0e8;">
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Subir nueva imagen <span
+                        class="fw-normal text-muted">(opcional)</span></label>
+                <input type="file" name="imagen" class="form-control"
+                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;background:#fff;">
+            </div>
+        </div>
+
+        <!-- PREGUNTAS -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;background:#f3f4f6;">
+            <div class="px-5 py-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="rounded-circle"
+                        style="width:13px;height:13px;background:#006EFF;display:inline-block;flex-shrink:0;"></span>
+                    <h5 class="fw-bold mb-0" style="color:#050A30;font-size:20px;">Preguntas</h5>
+                </div>
+
+                <div id="contenedor-preguntas">
+                    {% for pregunta in tarea.preguntas.all %}
+                    <div class="pregunta-item mb-4 p-4"
+                        style="background:#fff;border-radius:12px;border:1px solid #dde0e8;">
+                        <input type="hidden" name="pregunta_id[]" value="{{ pregunta.id }}">
+
+                        <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Pregunta</label>
+                        <input type="text" name="preguntas[]" value="{{ pregunta.enunciado }}" class="form-control mb-3"
+                            style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+
+                        <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Tipo</label>
+                        <select name="tipos[]" class="form-select tipo-pregunta mb-3"
+                            style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+                            <option value="texto" {% if pregunta.tipo == 'texto' %}selected{% endif %}>Respuesta abierta
+                            </option>
+                            <option value="opcion" {% if pregunta.tipo == 'opcion' %}selected{% endif %}>Opción múltiple
+                            </option>
+                        </select>
+
+                        <div class="respuesta-abierta {% if pregunta.tipo == 'opcion' %}d-none{% endif %}">
+                            <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Respuesta correcta</label>
+                            <input type="text" name="respuestas[]"
+                                value="{{ pregunta.respuestacorrecta.respuesta|default:'' }}" class="form-control"
+                                style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+                        </div>
+
+                        <div class="opciones-multiples {% if pregunta.tipo != 'opcion' %}d-none{% endif %}">
+                            {% for op in pregunta.opciones.all %}
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <input type="text" name="opcion_texto_{{ pregunta.id }}[]" value="{{ op.texto }}"
+                                    class="form-control"
+                                    style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+                                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                    <input type="radio" name="correcta_{{ pregunta.id }}" value="{{ forloop.counter }}"
+                                        {% if op.es_correcta %}checked{% endif %}>
+                                    <label class="mb-0" style="font-size:15px;color:#050A30;">Correcta</label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" class="btn btn-outline-danger mt-3 px-4 py-2 eliminar-pregunta"
+                            style="border-radius:8px;font-size:15px;">Eliminar pregunta</button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="agregarPregunta" class="btn px-4 py-2"
+                    style="background:#050A30;color:#fff;border-radius:8px;font-size:16px;">+ Agregar pregunta</button>
+            </div>
+        </div>
+
+        <!-- GUARDAR -->
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn px-5 py-3"
+                style="background:#006EFF;color:#fff;border-radius:10px;font-size:18px;font-weight:600;">Guardar
+                cambios</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function activarSelects() {
+        document.querySelectorAll('.tipo-pregunta').forEach(select => {
+            select.onchange = function () {
+                const bloque = this.closest('.pregunta-item');
+                const abierta = bloque.querySelector('.respuesta-abierta');
+                const multiple = bloque.querySelector('.opciones-multiples');
+                if (this.value === 'opcion') {
+                    abierta.classList.add('d-none');
+                    multiple.classList.remove('d-none');
+                } else {
+                    abierta.classList.remove('d-none');
+                    multiple.classList.add('d-none');
+                }
+            };
+        });
+    }
+
+    function activarEliminar() {
+        document.querySelectorAll('.eliminar-pregunta').forEach(btn => {
+            btn.onclick = function () {
+                this.closest('.pregunta-item').remove();
+            };
+        });
+    }
+
+    activarSelects();
+    activarEliminar();
+
+    document.getElementById('agregarPregunta').addEventListener('click', function () {
+        const contenedor = document.getElementById('contenedor-preguntas');
+        const bloque = document.createElement('div');
+        bloque.className = 'pregunta-item mb-4 p-4';
+        bloque.style.cssText = 'background:#fff;border-radius:12px;border:1px solid #dde0e8;';
+        bloque.innerHTML = `
+      <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Pregunta</label>
+      <input type="text" name="preguntas[]" class="form-control mb-3" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+
+      <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Tipo</label>
+      <select name="tipos[]" class="form-select tipo-pregunta mb-3" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+        <option value="texto">Respuesta abierta</option>
+        <option value="opcion">Opción múltiple</option>
+      </select>
+
+      <div class="respuesta-abierta">
+        <label class="fw-bold mb-1" style="font-size:15px;color:#050A30;">Respuesta correcta</label>
+        <input type="text" name="respuestas[]" class="form-control" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+      </div>
+
+      <div class="opciones-multiples d-none mt-2">
+        <input type="text" name="opcion_a[]" placeholder="Opción A" class="form-control mb-2" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+        <input type="text" name="opcion_b[]" placeholder="Opción B" class="form-control mb-2" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+        <input type="text" name="opcion_c[]" placeholder="Opción C" class="form-control mb-2" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+        <input type="text" name="opcion_d[]" placeholder="Opción D" class="form-control mb-2" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+        <select name="correcta[]" class="form-select" style="font-size:16px;padding:12px 16px;border-radius:10px;border:1px solid #dde0e8;">
+          <option value="A">A correcta</option>
+          <option value="B">B correcta</option>
+          <option value="C">C correcta</option>
+          <option value="D">D correcta</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-outline-danger mt-3 px-4 py-2 eliminar-pregunta" style="border-radius:8px;font-size:15px;">Eliminar pregunta</button>
+    `;
+        contenedor.appendChild(bloque);
+        activarSelects();
+        activarEliminar();
+    });
+</script>
+
+{% endblock %}
